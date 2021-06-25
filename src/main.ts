@@ -1,19 +1,24 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import { run } from './run'
 
-async function run(): Promise<void> {
+async function main(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const result = await run({
+      token: process.env.TFE_TOKEN as string,
+      organization: process.env.TFE_ORGANIZATION as string,
+      workspace: process.env.TFE_WORKSPACE as string,
+      contentDirectory: process.env.TFE_CONTENT_DIRECTORY as string,
+      speculative: true
+    })
 
-    core.setOutput('time', new Date().toTimeString())
+    core.setOutput('plan', result.plan)
+    core.setOutput('runUrl', result.runUrl)
+
+    console.log(result.plan)
   } catch (error) {
     core.setFailed(error.message)
   }
 }
 
-run()
+main()
