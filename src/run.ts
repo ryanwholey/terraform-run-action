@@ -1,6 +1,6 @@
 
 import axios from 'axios'
-import { terraform, TerraformInstance, TerraformOptions } from './lib/terraform'
+import { TerraformInstance } from './lib/terraform'
 import * as fs from 'fs'
 import tar from 'tar'
 
@@ -10,23 +10,23 @@ interface Result {
 }
 
 export async function run({
-  token,
   organization,
   workspace,
   contentDirectory,
   speculative = true,
   host = 'app.terraform.io',
 } : {
-  token: string,
   organization: string,
   workspace: string,
   contentDirectory: string,
   speculative?: boolean,
   host?: string
+}, {
+  terraform: tf
+}: {
+  terraform: TerraformInstance
 }): Promise<Result> {
   const result: Result = {runUrl: ''}
-
-  const tf = terraform({ token, host } as TerraformOptions) as TerraformInstance
 
   const ws = await tf({
     url: `/api/v2/organizations/${organization }/workspaces/${workspace}`,
@@ -134,7 +134,7 @@ export async function run({
         'planned_and_finished',
         'discarded',
         'errored',
-        'planned' // not a final state, we choose to let the workspace or user handle the apply
+        'planned' // not a final state, but we can treat it like one to let the workspace or user handle the apply
       ].includes(runStatus.data.data.attributes.status)) {
         pollForRun = false
       }

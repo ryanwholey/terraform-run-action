@@ -1,11 +1,23 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: Terraform run
+description: Create Terraform runs programatically via the Terraform API
+author: Ryan Wholey
 inputs:
-  milliseconds: # change this
+  organization:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: Terraform cloud or enterprise organization
+  workspace:
+    required: true
+    description: The workspace to create a run for
+  contentDirectory:
+    required: true
+    description: The directory containing Terraform code to create a run with
+  token:
+    required: true
+    description: A Terraform token capable of making API run requests
+  host:
+    requierd: false
+    description: The terraform enterprise host
+    default: app.terraform.io
 runs:
   using: 'node12'
   main: 'dist/index.js'
